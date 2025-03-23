@@ -1,0 +1,32 @@
+name: Run Go Tests and Generate SARIF
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Run Go Tests
+        run: go test -json ./... > go-test-results.json
+
+      - name: Convert JSON to SARIF
+        uses: ivuorinen/go-test-sarif@v1
+        with:
+          test_results: go-test-results.json
+
+      - name: Upload SARIF to GitHub Security Tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: go-test-results.sarif
