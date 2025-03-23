@@ -27,6 +27,6 @@ jobs:
           test_results: go-test-results.json
 
       - name: Upload SARIF to GitHub Security Tab
-        uses: github/codeql-action/upload-sarif@b8d3b6e8af63cde30bdc382c0bc28114f4346c88 # v2
+        uses: github/codeql-action/upload-sarif@5f8171a638ada777af81d42b55959a643bb29017 # v3
         with:
           sarif_file: go-test-results.sarif
