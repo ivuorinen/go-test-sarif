@@ -12,7 +12,7 @@ runs:
   using: 'composite'
   steps:
     - name: Convert Go test results to SARIF
-      uses: ivuorinen/go-test-sarif@v1
+      uses: ivuorinen/go-test-sarif@58ffaaacdb178a5d053f8e8c2693966422a3ecda # v1
       with:
         input_file: ${{ inputs.input_file }}
         output_file: ${{ inputs.output_file }}
