@@ -1,9 +1,10 @@
+// Package internal contains internal helper functions for the Go Test SARIF converter.
 package internal
 
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 )
 
 // TestResult represents a single test result from 'go test -json' output.
@@ -16,7 +17,7 @@ type TestResult struct {
 // ConvertToSARIF converts Go test JSON results to SARIF format.
 func ConvertToSARIF(inputFile, outputFile string) error {
 	// Read the input file
-	data, err := ioutil.ReadFile(inputFile)
+	data, err := os.ReadFile(inputFile)
 	if err != nil {
 		return fmt.Errorf("failed to read input file: %w", err)
 	}
@@ -50,7 +51,7 @@ func ConvertToSARIF(inputFile, outputFile string) error {
 	}
 
 	// Write the SARIF JSON to the output file
-	if err := ioutil.WriteFile(outputFile, sarifJSON, 0644); err != nil {
+	if err := os.WriteFile(outputFile, sarifJSON, 0644); err != nil {
 		return fmt.Errorf("failed to write SARIF output file: %w", err)
 	}
 
@@ -60,14 +61,14 @@ func ConvertToSARIF(inputFile, outputFile string) error {
 
 // convertResults transforms test results into SARIF result objects.
 func convertResults(testResults []TestResult) []map[string]interface{} {
-	var results []map[string]interface{}
+	var results []map[string]any
 	for _, tr := range testResults {
 		if tr.Action == "fail" {
-			results = append(results, map[string]interface{}{
-				"ruleId":   "go-test-failure",
-				"message":  map[string]string{"text": tr.Output},
-				"level":    "error",
-				"locations": []map[string]interface{}{},
+			results = append(results, map[string]any{
+				"ruleId":    "go-test-failure",
+				"message":   map[string]string{"text": tr.Output},
+				"level":     "error",
+				"locations": []map[string]any{},
 			})
 		}
 	}

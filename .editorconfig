@@ -13,6 +13,3 @@ trim_trailing_whitespace = true
 [*.go]
 indent_style = tab
 
-[{*.markdown,*.md}]
-indent_size = 4
-tab_width = 4

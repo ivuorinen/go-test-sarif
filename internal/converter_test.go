@@ -12,7 +12,12 @@ func TestConvertToSARIF_Success(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp input file: %v", err)
 	}
-	defer os.Remove(inputFile.Name())
+	defer func(name string) {
+		err := os.Remove(name)
+		if err != nil {
+			t.Fatalf("Failed to remove temp input file: %v", err)
+		}
+	}(inputFile.Name())
 
 	inputContent := `[{"Action":"fail","Package":"github.com/ivuorinen/go-test-sarif/internal","Output":"Test failed"}]`
 	if _, err := inputFile.WriteString(inputContent); err != nil {
@@ -24,7 +29,12 @@ func TestConvertToSARIF_Success(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp output file: %v", err)
 	}
-	defer os.Remove(outputFile.Name())
+	defer func(name string) {
+		err := os.Remove(name)
+		if err != nil {
+			t.Fatalf("Failed to remove temp output file: %v", err)
+		}
+	}(outputFile.Name())
 
 	// Run the ConvertToSARIF function
 	err = ConvertToSARIF(inputFile.Name(), outputFile.Name())
@@ -53,7 +63,12 @@ func TestConvertToSARIF_InvalidInput(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp input file: %v", err)
 	}
-	defer os.Remove(inputFile.Name())
+	defer func(name string) {
+		err := os.Remove(name)
+		if err != nil {
+			t.Fatalf("Failed to remove temp input file: %v", err)
+		}
+	}(inputFile.Name())
 
 	inputContent := `{"Action":"fail","Package":"github.com/ivuorinen/go-test-sarif/internal","Output":Test failed}` // Missing quotes around 'Test failed'
 	if _, err := inputFile.WriteString(inputContent); err != nil {
@@ -65,7 +80,12 @@ func TestConvertToSARIF_InvalidInput(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp output file: %v", err)
 	}
-	defer os.Remove(outputFile.Name())
+	defer func(name string) {
+		err := os.Remove(name)
+		if err != nil {
+			t.Fatalf("Failed to remove temp output file: %v", err)
+		}
+	}(outputFile.Name())
 
 	// Run the ConvertToSARIF function
 	err = ConvertToSARIF(inputFile.Name(), outputFile.Name())
@@ -84,7 +104,12 @@ func TestConvertToSARIF_FileNotFound(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp output file: %v", err)
 	}
-	defer os.Remove(outputFile.Name())
+	defer func(name string) {
+		err := os.Remove(name)
+		if err != nil {
+			t.Fatalf("Failed to remove temp output file: %v", err)
+		}
+	}(outputFile.Name())
 
 	// Run the ConvertToSARIF function
 	err = ConvertToSARIF(inputFile, outputFile.Name())
