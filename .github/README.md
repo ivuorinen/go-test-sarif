@@ -1,6 +1,7 @@
 # go-test-sarif
 
-`go-test-sarif` is a CLI tool and GitHub Action for converting `go test -json` output into SARIF format, making it compatible with GitHub Security Tab and other SARIF consumers.
+`go-test-sarif` is a CLI tool and GitHub Action for converting `go test -json` output into SARIF format,
+making it compatible with GitHub Security Tab and other SARIF consumers.
 
 ## 🚀 Features
 
