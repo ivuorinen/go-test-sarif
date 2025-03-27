@@ -1,6 +1,11 @@
 name: 'Go Test to SARIF Converter'
 description: 'Converts Go test JSON output to SARIF format.'
+
 author: 'Ismo Vuorinen'
+branding:
+  icon: "check"
+  color: "green"
+
 inputs:
   input_file:
     description: 'Path to the Go test JSON results file.'
@@ -8,11 +13,10 @@ inputs:
   output_file:
     description: 'Path where the SARIF output should be saved.'
     required: true
+
 runs:
-  using: 'composite'
-  steps:
-    - name: Convert Go test results to SARIF
-      uses: ivuorinen/go-test-sarif-action@58ffaaacdb178a5d053f8e8c2693966422a3ecda # v1
-      with:
-        input_file: ${{ inputs.input_file }}
-        output_file: ${{ inputs.output_file }}
+  using: "docker"
+  image: "docker://ivuorinen/go-test-sarif-action:v1"
+  with:
+    input_file: ${{ inputs.input_file }}
+    output_file: ${{ inputs.output_file }}
