@@ -29,12 +29,12 @@ func ConvertToSARIF(inputFile, outputFile string) error {
 	}
 
 	// Convert test results to SARIF format
-	sarifData := map[string]interface{}{
+	sarifData := map[string]any{
 		"version": "2.1.0",
-		"runs": []map[string]interface{}{
+		"runs": []map[string]any{
 			{
-				"tool": map[string]interface{}{
-					"driver": map[string]interface{}{
+				"tool": map[string]any{
+					"driver": map[string]any{
 						"name":    "go-test-sarif",
 						"version": "1.0.0",
 					},
@@ -60,7 +60,7 @@ func ConvertToSARIF(inputFile, outputFile string) error {
 }
 
 // convertResults transforms test results into SARIF result objects.
-func convertResults(testResults []TestResult) []map[string]interface{} {
+func convertResults(testResults []TestResult) []map[string]any {
 	var results []map[string]any
 	for _, tr := range testResults {
 		if tr.Action == "fail" {

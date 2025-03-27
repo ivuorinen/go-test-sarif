@@ -28,7 +28,7 @@ jobs:
         run: go test -json ./... > go-test-results.json
 
       - name: Convert JSON to SARIF
-        uses: ivuorinen/go-test-sarif@58ffaaacdb178a5d053f8e8c2693966422a3ecda # v1
+        uses: ivuorinen/go-test-sarif-action@58ffaaacdb178a5d053f8e8c2693966422a3ecda # v1
         with:
           input_file: go-test-results.json
           output_file: go-test-results.sarif

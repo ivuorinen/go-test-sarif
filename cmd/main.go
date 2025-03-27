@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ivuorinen/go-test-sarif/internal"
+	"github.com/ivuorinen/go-test-sarif-action/internal"
 )
 
 func main() {
