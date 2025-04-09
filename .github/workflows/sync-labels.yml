@@ -22,4 +22,4 @@ jobs:
       issues: write
     runs-on: ubuntu-latest
     steps:
-      - uses: ivuorinen/actions/sync-labels@f845a14b12c6f7cddaa38d0ac9ae19ae692944c8 # 25.4.7
+      - uses: ivuorinen/actions/sync-labels@312c00f77fbd73948441c8b004607e098e40c97f # 25.4.8
