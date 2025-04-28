@@ -26,4 +26,4 @@ jobs:
       statuses: write
 
     steps:
-      - uses: ivuorinen/actions/pr-lint@279ab4ac65d73b63b72f4a4064149b885b1ab134 # 25.4.25
+      - uses: ivuorinen/actions/pr-lint@edb5db7b564801bc35bcd5b7667c185760d05fdd # 25.4.28
