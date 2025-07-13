@@ -19,7 +19,7 @@ func TestConvertToSARIF_Success(t *testing.T) {
 		}
 	}(inputFile.Name())
 
-	inputContent := `[{"Action":"fail","Package":"github.com/ivuorinen/go-test-sarif/internal","Output":"Test failed"}]`
+	inputContent := `{"Action":"fail","Package":"github.com/ivuorinen/go-test-sarif/internal","Test":"TestExample","Output":"Test failed"}` + "\n"
 	if _, err := inputFile.WriteString(inputContent); err != nil {
 		t.Fatalf("Failed to write to temp input file: %v", err)
 	}
@@ -70,7 +70,7 @@ func TestConvertToSARIF_InvalidInput(t *testing.T) {
 		}
 	}(inputFile.Name())
 
-	inputContent := `{"Action":"fail","Package":"github.com/ivuorinen/go-test-sarif/internal","Output":Test failed}` // Missing quotes around 'Test failed'
+	inputContent := `{"Action":"fail","Package":"github.com/ivuorinen/go-test-sarif/internal","Test":"TestExample","Output":Test failed}` + "\n" // Missing quotes around 'Test failed'
 	if _, err := inputFile.WriteString(inputContent); err != nil {
 		t.Fatalf("Failed to write to temp input file: %v", err)
 	}
