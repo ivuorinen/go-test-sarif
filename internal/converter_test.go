@@ -118,3 +118,35 @@ func TestConvertToSARIF_FileNotFound(t *testing.T) {
 		t.Errorf("Expected an error for non-existent input file, but got none")
 	}
 }
+
+// TestConvertToSARIF_PackageFailure ensures package-level failures are included in the SARIF output.
+func TestConvertToSARIF_PackageFailure(t *testing.T) {
+	inputFile, err := os.CreateTemp("", "test_input_pkgfail_*.json")
+	if err != nil {
+		t.Fatalf("Failed to create temp input file: %v", err)
+	}
+	defer os.Remove(inputFile.Name())
+
+	inputContent := `{"Action":"fail","Package":"github.com/ivuorinen/go-test-sarif-action","Output":"FAIL"}` + "\n"
+	if _, err := inputFile.WriteString(inputContent); err != nil {
+		t.Fatalf("Failed to write to temp input file: %v", err)
+	}
+
+	outputFile, err := os.CreateTemp("", "test_output_pkgfail_*.sarif")
+	if err != nil {
+		t.Fatalf("Failed to create temp output file: %v", err)
+	}
+	defer os.Remove(outputFile.Name())
+
+	if err := ConvertToSARIF(inputFile.Name(), outputFile.Name()); err != nil {
+		t.Errorf("ConvertToSARIF returned an error: %v", err)
+	}
+
+	data, err := os.ReadFile(outputFile.Name())
+	if err != nil {
+		t.Fatalf("Failed to read SARIF output file: %v", err)
+	}
+	if len(data) == 0 {
+		t.Errorf("SARIF output is empty")
+	}
+}

@@ -40,7 +40,7 @@ func ConvertToSARIF(inputFile, outputFile string) error {
 		if err := json.Unmarshal(scanner.Bytes(), &event); err != nil {
 			return fmt.Errorf("invalid JSON format: %w", err)
 		}
-		if event.Action == "fail" && event.Test != "" {
+		if event.Action == "fail" && (event.Test != "" || event.Package != "") {
 			res := sarif.NewRuleResult(rule.ID).
 				WithLevel("error").
 				WithMessage(sarif.NewTextMessage(event.Output))
