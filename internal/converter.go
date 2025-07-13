@@ -1,76 +1,61 @@
-// Package internal contains internal helper functions for the Go Test SARIF converter.
+// Package internal provides the SARIF conversion utilities.
 package internal
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"os"
+
+	"github.com/owenrumney/go-sarif/v2/sarif"
 )
 
-// TestResult represents a single test result from 'go test -json' output.
-type TestResult struct {
+// TestEvent represents a single line of `go test -json` output.
+type TestEvent struct {
 	Action  string `json:"Action"`
 	Package string `json:"Package"`
-	Output  string `json:"Output"`
+	Test    string `json:"Test,omitempty"`
+	Output  string `json:"Output,omitempty"`
 }
 
-// ConvertToSARIF converts Go test JSON results to SARIF format.
+// ConvertToSARIF converts Go test JSON events to the SARIF format.
 func ConvertToSARIF(inputFile, outputFile string) error {
-	// Read the input file
-	data, err := os.ReadFile(inputFile)
+	f, err := os.Open(inputFile)
 	if err != nil {
 		return fmt.Errorf("failed to read input file: %w", err)
 	}
+	defer f.Close()
 
-	// Parse the JSON data
-	var testResults []TestResult
-	if err := json.Unmarshal(data, &testResults); err != nil {
-		return fmt.Errorf("invalid JSON format: %w", err)
-	}
-
-	// Convert test results to SARIF format
-	sarifData := map[string]any{
-		"version": "2.1.0",
-		"runs": []map[string]any{
-			{
-				"tool": map[string]any{
-					"driver": map[string]any{
-						"name":    "go-test-sarif",
-						"version": "1.0.0",
-					},
-				},
-				"results": convertResults(testResults),
-			},
-		},
-	}
-
-	// Marshal SARIF data to JSON
-	sarifJSON, err := json.MarshalIndent(sarifData, "", "  ")
+	report, err := sarif.New(sarif.Version210)
 	if err != nil {
-		return fmt.Errorf("failed to marshal SARIF data: %w", err)
+		return fmt.Errorf("failed to create SARIF report: %w", err)
 	}
 
-	// Write the SARIF JSON to the output file
-	if err := os.WriteFile(outputFile, sarifJSON, 0644); err != nil {
+	run := sarif.NewRunWithInformationURI("go-test-sarif", "https://golang.org/cmd/go/#hdr-Test_packages")
+	rule := run.AddRule("go-test-failure").WithDescription("go test failure")
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		var event TestEvent
+		if err := json.Unmarshal(scanner.Bytes(), &event); err != nil {
+			return fmt.Errorf("invalid JSON format: %w", err)
+		}
+		if event.Action == "fail" && (event.Test != "" || event.Package != "") {
+			res := sarif.NewRuleResult(rule.ID).
+				WithLevel("error").
+				WithMessage(sarif.NewTextMessage(event.Output))
+			run.AddResult(res)
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return fmt.Errorf("failed to scan input file: %w", err)
+	}
+
+	report.AddRun(run)
+	if err := report.WriteFile(outputFile); err != nil {
 		return fmt.Errorf("failed to write SARIF output file: %w", err)
 	}
 
 	fmt.Printf("SARIF report generated: %s\n", outputFile)
 	return nil
-}
-
-// convertResults transforms test results into SARIF result objects.
-func convertResults(testResults []TestResult) []map[string]any {
-	var results []map[string]any
-	for _, tr := range testResults {
-		if tr.Action == "fail" {
-			results = append(results, map[string]any{
-				"ruleId":    "go-test-failure",
-				"message":   map[string]string{"text": tr.Output},
-				"level":     "error",
-				"locations": []map[string]any{},
-			})
-		}
-	}
-	return results
 }
