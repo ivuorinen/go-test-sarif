@@ -1,12 +1,11 @@
-# go-test-sarif and go-test-sarif-action
+# go-test-sarif
 
-`go-test-sarif` is a CLI tool and GitHub Action for converting `go test -json` output into SARIF format,
+`go-test-sarif` is a CLI tool for converting `go test -json` output into SARIF format,
 making it compatible with GitHub Security Tab and other SARIF consumers.
 
 ## 🚀 Features
 
 - Converts `go test -json` output to **SARIF format**.
-- **GitHub Action integration** for CI/CD pipelines.
 - Generates structured test failure reports for **security and compliance tools**.
 - Works as a **standalone CLI tool**.
 
@@ -18,12 +17,6 @@ making it compatible with GitHub Security Tab and other SARIF consumers.
 go install github.com/ivuorinen/go-test-sarif-action@latest
 ```
 
-### Using Docker
-
-```sh
-docker pull ghcr.io/ivuorinen/go-test-sarif-action:latest
-```
-
 ## 🛠️ Usage
 
 ### CLI Usage
@@ -33,35 +26,10 @@ go test -json ./... > go-test-results.json
 go-test-sarif go-test-results.json go-test-results.sarif
 ```
 
-### Docker Usage
-
-```sh
-docker run --rm -v $(pwd):/workspace ghcr.io/ivuorinen/go-test-sarif-action go-test-results.json go-test-results.sarif
-```
-
-### GitHub Action Usage
-
-Add the following step to your GitHub Actions workflow:
-
-```yaml
-- name: Convert JSON to SARIF
-  uses: ivuorinen/go-test-sarif-action@v1
-  with:
-    test_results: go-test-results.json
-```
-
-To upload the SARIF file to GitHub Security Tab, add:
-
-```yaml
-- name: Upload SARIF report
-  uses: github/codeql-action/upload-sarif@v2
-  with:
-    sarif_file: go-test-results.sarif
-```
-
 ## 📜 Output Example
 
 SARIF report example:
+
 ```json
 {
   "version": "2.1.0",
@@ -100,9 +68,10 @@ SARIF report example:
 ## 🏗 Development
 
 Clone the repository and build the project:
+
 ```sh
 git clone https://github.com/ivuorinen/go-test-sarif-action.git
-cd go-test-sarif
+cd go-test-sarif-action
 go build -o go-test-sarif ./cmd/main.go
 ```
 
@@ -118,4 +87,4 @@ This project is licensed under the **MIT License**.
 
 ## 🤝 Contributing
 
-Pull requests are welcome! For major changes, please open an issue first to discuss the changes.
+Pull requests are welcome! For major changes, open an issue to discuss them.

@@ -28,10 +28,7 @@ jobs:
         run: go test -json ./... > go-test-results.json
 
       - name: Convert JSON to SARIF
-        uses: ivuorinen/go-test-sarif-action@58ffaaacdb178a5d053f8e8c2693966422a3ecda # v1
-        with:
-          input_file: go-test-results.json
-          output_file: go-test-results.sarif
+        run: go run ./cmd/main.go go-test-results.json go-test-results.sarif
 
       - name: Upload SARIF to GitHub Security Tab
         uses: github/codeql-action/upload-sarif@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
