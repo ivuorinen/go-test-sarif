@@ -25,4 +25,4 @@ logs
 .DS_Store
 bin/*
 !bin/.gitkeep
-megalinter-reports/
+megalinter-reports

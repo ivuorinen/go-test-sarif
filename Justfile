@@ -7,6 +7,11 @@ src := "./cmd/main.go"
 default:
     just build
 
+# Lint with megalinter
+lint:
+  echo "Linting..."
+  npx --yes mega-linter-runner
+
 # Build the Go binary
 build:
     echo "Building {{app_name}}..."
