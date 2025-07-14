@@ -23,11 +23,16 @@ jobs:
         with:
           go-version-file: "go.mod"
 
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          args: --version
+
       - name: Run Linters
         run: |
           go vet ./...
           golangci-lint run
-
       - name: Run Go Tests
         shell: bash
         run: go test -json ./... > go-test-results.json
