@@ -2,12 +2,9 @@ module github.com/ivuorinen/go-test-sarif-action
 
 go 1.24.1
 
-require (
-	github.com/owenrumney/go-sarif/v2 v2.3.3
-	github.com/owenrumney/go-sarif/v3 v3.2.1
-)
+require github.com/owenrumney/go-sarif/v2 v2.3.3
 
-require gopkg.in/yaml.v3 v3.0.1 // indirect
+require github.com/stretchr/testify v1.10.0 // indirect
 
 replace golang.org/x/crypto => golang.org/x/crypto v0.40.0
 
