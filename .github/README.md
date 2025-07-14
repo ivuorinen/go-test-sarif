@@ -73,12 +73,20 @@ Clone the repository and build the project:
 git clone https://github.com/ivuorinen/go-test-sarif-action.git
 cd go-test-sarif-action
 go build -o go-test-sarif ./cmd/main.go
+go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 ```
 
 Run tests:
 
 ```sh
 go test ./...
+```
+
+Run linting:
+
+```sh
+go vet ./...
+golangci-lint run
 ```
 
 ## 📄 License

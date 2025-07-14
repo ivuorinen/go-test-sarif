@@ -20,11 +20,15 @@ type TestEvent struct {
 
 // ConvertToSARIF converts Go test JSON events to the SARIF format.
 func ConvertToSARIF(inputFile, outputFile string) error {
-	f, err := os.Open(inputFile)
-	if err != nil {
-		return fmt.Errorf("failed to read input file: %w", err)
-	}
-	defer f.Close()
+       f, err := os.Open(inputFile)
+       if err != nil {
+               return fmt.Errorf("failed to read input file: %w", err)
+       }
+       defer func() {
+               if cerr := f.Close(); cerr != nil {
+                       fmt.Fprintf(os.Stderr, "failed to close input file: %v\n", cerr)
+               }
+       }()
 
 	report, err := sarif.New(sarif.Version210)
 	if err != nil {
