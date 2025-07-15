@@ -1,3 +1,4 @@
+---
 name: Run Go Tests and Generate SARIF
 
 on:
