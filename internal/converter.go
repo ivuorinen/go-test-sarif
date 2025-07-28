@@ -22,17 +22,13 @@ type TestEvent struct {
 func ConvertToSARIF(inputFile, outputFile string) error {
 	f, err := os.Open(inputFile)
 	if err != nil {
-		return fmt.Errorf("failed to read input file: %w", err)
+		return err
 	}
-	defer func() {
-		if cerr := f.Close(); cerr != nil {
-			fmt.Fprintf(os.Stderr, "failed to close input file: %v\n", cerr)
-		}
-	}()
+	defer func() { _ = f.Close() }()
 
 	report, err := sarif.New(sarif.Version210)
 	if err != nil {
-		return fmt.Errorf("failed to create SARIF report: %w", err)
+		return err
 	}
 
 	run := sarif.NewRunWithInformationURI("go-test-sarif", "https://golang.org/cmd/go/#hdr-Test_packages")
@@ -42,22 +38,23 @@ func ConvertToSARIF(inputFile, outputFile string) error {
 	for scanner.Scan() {
 		var event TestEvent
 		if err := json.Unmarshal(scanner.Bytes(), &event); err != nil {
-			return fmt.Errorf("invalid JSON format: %w", err)
+			return fmt.Errorf("invalid JSON: %w", err)
 		}
 		if event.Action == "fail" && (event.Test != "" || event.Package != "") {
-			res := sarif.NewRuleResult(rule.ID).
+			result := sarif.NewRuleResult(rule.ID).
 				WithLevel("error").
 				WithMessage(sarif.NewTextMessage(event.Output))
-			run.AddResult(res)
+			run.AddResult(result)
 		}
 	}
+
 	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("failed to scan input file: %w", err)
+		return err
 	}
 
 	report.AddRun(run)
 	if err := report.WriteFile(outputFile); err != nil {
-		return fmt.Errorf("failed to write SARIF output file: %w", err)
+		return err
 	}
 
 	fmt.Printf("SARIF report generated: %s\n", outputFile)
