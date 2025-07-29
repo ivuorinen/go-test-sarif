@@ -1,3 +1,4 @@
+// Package main provides the CLI for converting go test JSON output to SARIF format.
 package main
 
 import (
