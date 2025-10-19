@@ -1,6 +1,6 @@
 module github.com/ivuorinen/go-test-sarif-action
 
-go 1.24.1
+go 1.25.3
 
 require github.com/owenrumney/go-sarif/v2 v2.3.3
 
