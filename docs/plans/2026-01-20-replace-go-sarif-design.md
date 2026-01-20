@@ -2,13 +2,16 @@
 
 ## Context
 
-The `gopkg.in/yaml.v3` dependency is archived and unmaintained. It enters our dependency graph through:
+The `gopkg.in/yaml.v3` dependency is archived and unmaintained.
+It enters our dependency graph through:
 
-```
+```text
 go-sarif/v2 → testify → gopkg.in/yaml.v3
 ```
 
-This project uses a minimal subset of go-sarif. Replacing it with an internal implementation eliminates all external dependencies and the yaml.v3 vulnerability.
+This project uses a minimal subset of go-sarif. Replacing it with an
+internal implementation eliminates all external dependencies and the
+yaml.v3 vulnerability.
 
 ## Goals
 
@@ -20,7 +23,7 @@ This project uses a minimal subset of go-sarif. Replacing it with an internal im
 
 ## Package Structure
 
-```
+```text
 internal/
 ├── sarif/
 │   ├── model.go       # Internal SARIF data model
@@ -113,6 +116,7 @@ func SupportedVersions() []string
 ```
 
 Adding a new version requires:
+
 1. Create version file (e.g., `v23.go`) with serializer function
 2. Add version constant
 3. Register in `init()`
@@ -137,7 +141,7 @@ SARIF v2.2 follows the same pattern with its schema differences.
 
 ## CLI Interface
 
-```
+```shell
 go-test-sarif <input.json> <output.sarif>
 go-test-sarif --sarif-version 2.2 <input.json> <output.sarif>
 go-test-sarif --pretty <input.json> <output.sarif>
@@ -145,6 +149,7 @@ go-test-sarif --version
 ```
 
 Flags:
+
 - `--sarif-version`: SARIF output version (default: 2.1.0)
 - `--pretty`: Pretty-print JSON output with indentation
 - `--version`, `-v`: Display tool version
@@ -177,7 +182,7 @@ func ConvertToSARIF(inputFile, outputFile string, opts ConvertOptions) error
 
 ## Testing Strategy
 
-```
+```text
 internal/testjson/parser_test.go
 - TestParseFile_ValidInput
 - TestParseFile_AllFields
@@ -218,6 +223,7 @@ internal/converter_test.go
 ## Result
 
 After migration:
+
 - Zero external dependencies
 - No yaml.v3 in dependency graph
 - Extensible SARIF version support

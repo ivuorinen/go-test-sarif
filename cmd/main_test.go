@@ -44,10 +44,10 @@ func TestRun(t *testing.T) {
 			wantStderr: "Usage: go-test-sarif",
 		},
 		{
-			name:     "valid conversion",
-			args:     []string{"go-test-sarif", "input.json", "output.sarif"},
+			name:      "valid conversion",
+			args:      []string{"go-test-sarif", "input.json", "output.sarif"},
 			setupFunc: setupValidTestFiles,
-			wantExit: 0,
+			wantExit:  0,
 		},
 		{
 			name:       "invalid input file",

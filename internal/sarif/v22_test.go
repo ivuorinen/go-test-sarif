@@ -22,7 +22,7 @@ func TestSerializeV22_Schema(t *testing.T) {
 		t.Fatalf("invalid JSON output: %v", err)
 	}
 
-	if result["$schema"] != "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.2/schema/sarif-2.2.json" {
+	if result["$schema"] != "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/2.2-prerelease-2024-08-08/sarif-2.2/schema/sarif-2-2.schema.json" {
 		t.Errorf("$schema = %v", result["$schema"])
 	}
 	if result["version"] != "2.2" {

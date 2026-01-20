@@ -7,6 +7,6 @@ func init() {
 
 func serializeV22(r *Report) ([]byte, error) {
 	return serializeWithVersion(r,
-		"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.2/schema/sarif-2.2.json",
+		"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/2.2-prerelease-2024-08-08/sarif-2.2/schema/sarif-2-2.schema.json",
 		"2.2")
 }
