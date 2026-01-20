@@ -6,21 +6,20 @@ import (
 	"testing"
 
 	"github.com/ivuorinen/go-test-sarif-action/internal/sarif"
+	"github.com/ivuorinen/go-test-sarif-action/internal/testutil"
 )
-
-const testInputFile = "input.json"
 
 // testConvertHelper sets up input/output files and runs conversion
 func testConvertHelper(t *testing.T, inputJSON string, opts ConvertOptions) ([]byte, error) {
 	t.Helper()
 	dir := t.TempDir()
 
-	inputPath := filepath.Join(dir, testInputFile)
+	inputPath := filepath.Join(dir, testutil.InputJSON)
 	if err := os.WriteFile(inputPath, []byte(inputJSON), 0o600); err != nil {
 		t.Fatalf("Failed to write input file: %v", err)
 	}
 
-	outputPath := filepath.Join(dir, "output.sarif")
+	outputPath := filepath.Join(dir, testutil.OutputSARIF)
 	if err := ConvertToSARIF(inputPath, outputPath, opts); err != nil {
 		return nil, err
 	}
@@ -54,7 +53,7 @@ func TestConvertToSARIF_InvalidInput(t *testing.T) {
 		t.Fatalf("Failed to write input file: %v", err)
 	}
 
-	outputPath := filepath.Join(dir, "output.sarif")
+	outputPath := filepath.Join(dir, testutil.OutputSARIF)
 
 	opts := DefaultConvertOptions()
 	if err := ConvertToSARIF(inputPath, outputPath, opts); err == nil {
@@ -66,7 +65,7 @@ func TestConvertToSARIF_FileNotFound(t *testing.T) {
 	inputFile := "non_existent_file.json"
 
 	dir := t.TempDir()
-	outputPath := filepath.Join(dir, "output.sarif")
+	outputPath := filepath.Join(dir, testutil.OutputSARIF)
 
 	opts := DefaultConvertOptions()
 	if err := ConvertToSARIF(inputFile, outputPath, opts); err == nil {
@@ -89,7 +88,7 @@ func TestConvertToSARIF_PackageFailure(t *testing.T) {
 func TestConvertToSARIF_Options(t *testing.T) {
 	dir := t.TempDir()
 
-	inputPath := filepath.Join(dir, testInputFile)
+	inputPath := filepath.Join(dir, testutil.InputJSON)
 	inputContent := `{"Action":"fail","Package":"example.com/foo","Test":"TestBar","Output":"failed"}` + "\n"
 	if err := os.WriteFile(inputPath, []byte(inputContent), 0o600); err != nil {
 		t.Fatalf("Failed to write input file: %v", err)
