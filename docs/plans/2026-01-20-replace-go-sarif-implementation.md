@@ -8,7 +8,7 @@
 
 **Tech Stack:** Go standard library only (encoding/json, bufio, os, time, sort, bytes, fmt)
 
-**Note:** The design document mentioned "SARIF v3.0" but this specification doesn't exist. We implement v2.1.0 and v2.2 (the actual supported versions).
+**Note:** We implement SARIF v2.1.0 and v2.2 (the currently supported specifications).
 
 ---
 
@@ -1684,9 +1684,9 @@ cat /tmp/output-pretty.sarif | head -10
 rm -f go-test-sarif /tmp/test.json /tmp/output-*.sarif
 ```
 
-**Step 4: Update design document with correction**
+**Step 4: Verify design document alignment**
 
-Note that we implemented SARIF v2.1.0 and v2.2 (not v3.0 as originally mentioned, since SARIF 3.0 doesn't exist).
+Both design and implementation documents reference SARIF v2.1.0 and v2.2.
 
 ---
 

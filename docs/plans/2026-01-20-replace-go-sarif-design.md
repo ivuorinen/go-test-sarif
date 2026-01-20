@@ -13,7 +13,7 @@ This project uses a minimal subset of go-sarif. Replacing it with an internal im
 ## Goals
 
 - Remove go-sarif dependency entirely
-- Support SARIF v2.1.0 and v3.0 with extensible version system
+- Support SARIF v2.1.0 and v2.2 with extensible version system
 - Capture all `go test -json` fields for future use
 - Add logical location info (package/test name) to results
 - Zero external dependencies after migration
@@ -27,7 +27,7 @@ internal/
 │   ├── version.go     # Version enum and registry
 │   ├── writer.go      # Common writing logic
 │   ├── v21.go         # SARIF 2.1.0 serializer
-│   └── v30.go         # SARIF 3.0 serializer
+│   └── v22.go         # SARIF 2.2 serializer
 ├── testjson/
 │   └── parser.go      # Go test JSON parser (all 7 fields)
 └── converter.go       # Orchestrates parsing → model → SARIF output
@@ -98,7 +98,7 @@ type Version string
 
 const (
     Version210 Version = "2.1.0"
-    Version300 Version = "3.0"
+    Version22  Version = "2.2"
 )
 
 const DefaultVersion = Version210
@@ -113,7 +113,7 @@ func SupportedVersions() []string
 ```
 
 Adding a new version requires:
-1. Create version file (e.g., `v31.go`) with serializer function
+1. Create version file (e.g., `v23.go`) with serializer function
 2. Add version constant
 3. Register in `init()`
 
@@ -133,13 +133,13 @@ type sarifV21 struct {
 func serializeV21(r *Report) ([]byte, error)
 ```
 
-SARIF 3.0 follows the same pattern with its schema differences.
+SARIF v2.2 follows the same pattern with its schema differences.
 
 ## CLI Interface
 
 ```
 go-test-sarif <input.json> <output.sarif>
-go-test-sarif --sarif-version 3.0 <input.json> <output.sarif>
+go-test-sarif --sarif-version 2.2 <input.json> <output.sarif>
 go-test-sarif --pretty <input.json> <output.sarif>
 go-test-sarif --version
 ```
@@ -194,9 +194,9 @@ internal/sarif/v21_test.go
 - TestSerializeV21_WithResults
 - TestSerializeV21_LogicalLocation
 
-internal/sarif/v30_test.go
-- TestSerializeV30_Schema
-- TestSerializeV30_WithResults
+internal/sarif/v22_test.go
+- TestSerializeV22_Schema
+- TestSerializeV22_WithResults
 
 internal/converter_test.go
 - TestConvertToSARIF_Success (update existing)
@@ -206,7 +206,7 @@ internal/converter_test.go
 ## Migration Steps
 
 1. Implement `internal/testjson/` package
-2. Implement `internal/sarif/` package with v2.1.0 and v3.0 serializers
+2. Implement `internal/sarif/` package with v2.1.0 and v2.2 serializers
 3. Update `internal/converter.go` to use new packages
 4. Update `cmd/main.go` with new CLI flags
 5. Update existing tests, add new tests
