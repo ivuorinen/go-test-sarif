@@ -11,8 +11,10 @@ import (
 
 // ConvertOptions configures the conversion behavior.
 type ConvertOptions struct {
+	// SARIFVersion specifies which SARIF schema version to use.
 	SARIFVersion sarif.Version
-	Pretty       bool
+	// Pretty enables indented JSON output for readability.
+	Pretty bool
 }
 
 // DefaultConvertOptions returns options with sensible defaults.

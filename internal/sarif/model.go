@@ -3,28 +3,40 @@ package sarif
 
 // Report is the internal version-agnostic representation of a SARIF report.
 type Report struct {
-	ToolName    string
+	// ToolName is the name of the tool that produced the results.
+	ToolName string
+	// ToolInfoURI is a URL for more information about the tool.
 	ToolInfoURI string
-	Rules       []Rule
-	Results     []Result
+	// Rules contains the rule definitions referenced by results.
+	Rules []Rule
+	// Results contains the actual findings/test failures.
+	Results []Result
 }
 
 // Rule defines a rule that can be violated.
 type Rule struct {
-	ID          string
+	// ID is the unique identifier for this rule.
+	ID string
+	// Description explains what this rule checks.
 	Description string
 }
 
 // Result represents a single finding.
 type Result struct {
-	RuleID   string
-	Level    string // "error", "warning", "note"
-	Message  string
+	// RuleID references the rule that produced this result.
+	RuleID string
+	// Level indicates the severity (error, warning, note).
+	Level string
+	// Message describes the specific issue found.
+	Message string
+	// Location identifies where the issue was found.
 	Location *LogicalLocation
 }
 
 // LogicalLocation identifies where an issue occurred without file coordinates.
 type LogicalLocation struct {
-	Module   string // Package name (e.g., "github.com/foo/bar")
-	Function string // Test or function name (e.g., "TestExample")
+	// Module is the Go module or package path.
+	Module string
+	// Function is the name of the function or test.
+	Function string
 }

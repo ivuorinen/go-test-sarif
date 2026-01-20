@@ -12,10 +12,15 @@ import (
 	"github.com/ivuorinen/go-test-sarif-action/internal/sarif"
 )
 
+// Build-time variables set via ldflags.
 var (
+	// version is the application version, set at build time.
 	version = "dev"
-	commit  = "none"
-	date    = "unknown"
+	// commit is the git commit hash, set at build time.
+	commit = "none"
+	// date is the build date, set at build time.
+	date = "unknown"
+	// builtBy is the builder identifier, set at build time.
 	builtBy = "unknown"
 )
 

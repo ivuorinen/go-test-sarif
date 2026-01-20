@@ -11,13 +11,20 @@ import (
 
 // TestEvent captures all fields from go test -json output.
 type TestEvent struct {
-	Time        time.Time `json:"Time"`
-	Action      string    `json:"Action"`
-	Package     string    `json:"Package"`
-	Test        string    `json:"Test,omitempty"`
-	Elapsed     float64   `json:"Elapsed,omitempty"`
-	Output      string    `json:"Output,omitempty"`
-	FailedBuild string    `json:"FailedBuild,omitempty"`
+	// Time is when the event occurred.
+	Time time.Time `json:"Time"`
+	// Action is the event type (run, pass, fail, output, etc.).
+	Action string `json:"Action"`
+	// Package is the Go package being tested.
+	Package string `json:"Package"`
+	// Test is the name of the specific test, if applicable.
+	Test string `json:"Test,omitempty"`
+	// Elapsed is the duration in seconds for pass/fail events.
+	Elapsed float64 `json:"Elapsed,omitempty"`
+	// Output contains any text output from the test.
+	Output string `json:"Output,omitempty"`
+	// FailedBuild indicates if this was a build failure.
+	FailedBuild string `json:"FailedBuild,omitempty"`
 }
 
 // ParseFile reads and parses a go test -json output file.
