@@ -1,4 +1,4 @@
-// internal/sarif/version.go
+// Package sarif provides SARIF report generation.
 package sarif
 
 import (

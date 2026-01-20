@@ -1,4 +1,4 @@
-// internal/sarif/v22.go
+// Package sarif provides SARIF report generation.
 package sarif
 
 import "encoding/json"

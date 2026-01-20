@@ -1,4 +1,4 @@
-// internal/sarif/model.go
+// Package sarif provides SARIF report generation.
 package sarif
 
 // Report is the internal version-agnostic representation of a SARIF report.

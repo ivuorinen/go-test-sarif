@@ -27,7 +27,7 @@ func ParseFile(path string) ([]TestEvent, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	var events []TestEvent
 	scanner := bufio.NewScanner(f)
