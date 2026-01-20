@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/owenrumney/go-sarif/v2/sarif"
+	"github.com/owenrumney/go-sarif/v3/pkg/report/v210/sarif"
 )
 
 // TestEvent represents a single line of `go test -json` output.
@@ -26,10 +26,7 @@ func ConvertToSARIF(inputFile, outputFile string) error {
 	}
 	defer func() { _ = f.Close() }()
 
-	report, err := sarif.New(sarif.Version210)
-	if err != nil {
-		return err
-	}
+	report := sarif.NewReport()
 
 	run := sarif.NewRunWithInformationURI("go-test-sarif", "https://golang.org/cmd/go/#hdr-Test_packages")
 	rule := run.AddRule("go-test-failure").WithDescription("go test failure")
@@ -41,7 +38,7 @@ func ConvertToSARIF(inputFile, outputFile string) error {
 			return fmt.Errorf("invalid JSON: %w", err)
 		}
 		if event.Action == "fail" && (event.Test != "" || event.Package != "") {
-			result := sarif.NewRuleResult(rule.ID).
+			result := sarif.NewRuleResult(*rule.ID).
 				WithLevel("error").
 				WithMessage(sarif.NewTextMessage(event.Output))
 			run.AddResult(result)
