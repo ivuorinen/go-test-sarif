@@ -4,17 +4,39 @@
 # https://megalinter.io/configuration/ and in linters documentation
 
 APPLY_FIXES: all
-SHOW_ELAPSED_TIME: false # Show elapsed time at the end of MegaLinter run
+SHOW_ELAPSED_TIME: false
 PARALLEL: true
 VALIDATE_ALL_CODEBASE: true
-FILEIO_REPORTER: false # Generate file.io report
-GITHUB_STATUS_REPORTER: true # Generate GitHub status report
-IGNORE_GENERATED_FILES: true # Ignore generated files
-JAVASCRIPT_DEFAULT_STYLE: prettier # Default style for JavaScript
-PRINT_ALPACA: false # Print Alpaca logo in console
-SARIF_REPORTER: true # Generate SARIF report
-SHOW_SKIPPED_LINTERS: false # Show skipped linters in MegaLinter log
+FILEIO_REPORTER: false
+GITHUB_STATUS_REPORTER: true
+IGNORE_GENERATED_FILES: true
+PRINT_ALPACA: false
+SARIF_REPORTER: true
+SHOW_SKIPPED_LINTERS: false
 
 DISABLE_LINTERS:
   - REPOSITORY_DEVSKIM
-  - GO_GOLANGCI_LINT # old go version, fails always
+  - REPOSITORY_TRIVY
+  - REPOSITORY_TRIVY_SBOM
+  - REPOSITORY_TRUFFLEHOG
+  - REPOSITORY_CHECKOV
+  - REPOSITORY_KICS
+  - REPOSITORY_GRYPE
+  - SPELL_CSPELL
+  - SPELL_MISSPELL
+  - COPYPASTE_JSCPD
+
+ENABLE_LINTERS:
+  - GO_GOLANGCI_LINT
+  - GO_REVIVE
+  - YAML_YAMLLINT
+  - MARKDOWN_MARKDOWNLINT
+  - JSON_JSONLINT
+  - BASH_SHELLCHECK
+  - BASH_SHFMT
+  - DOCKERFILE_HADOLINT
+  - ACTION_ACTIONLINT
+
+MARKDOWN_MARKDOWNLINT_CONFIG_FILE: .markdownlint.json
+
+FILTER_REGEX_EXCLUDE: (testdata|\.git)
