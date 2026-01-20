@@ -24,7 +24,7 @@ type TestEvent struct {
 	// Output contains any text output from the test.
 	Output string `json:"Output,omitempty"`
 	// FailedBuild indicates if this was a build failure.
-	FailedBuild string `json:"FailedBuild,omitempty"`
+	FailedBuild bool `json:"FailedBuild,omitempty"`
 }
 
 // ParseFile reads and parses a go test -json output file.

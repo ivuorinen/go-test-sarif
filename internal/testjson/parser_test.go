@@ -58,7 +58,7 @@ func TestParseFile_AllFields(t *testing.T) {
 	inputPath := filepath.Join(dir, testInputFile)
 
 	// Event with all fields populated
-	content := `{"Time":"2024-01-15T10:30:00Z","Action":"fail","Package":"example.com/foo","Test":"TestBar","Elapsed":1.234,"Output":"FAIL\n","FailedBuild":"example.com/broken"}
+	content := `{"Time":"2024-01-15T10:30:00Z","Action":"fail","Package":"example.com/foo","Test":"TestBar","Elapsed":1.234,"Output":"FAIL\n","FailedBuild":true}
 `
 	if err := os.WriteFile(inputPath, []byte(content), 0o600); err != nil {
 		t.Fatalf("failed to write test file: %v", err)
@@ -94,8 +94,8 @@ func TestParseFile_AllFields(t *testing.T) {
 	if e.Output != "FAIL\n" {
 		t.Errorf("Output = %q, want %q", e.Output, "FAIL\n")
 	}
-	if e.FailedBuild != "example.com/broken" {
-		t.Errorf("FailedBuild = %q, want %q", e.FailedBuild, "example.com/broken")
+	if !e.FailedBuild {
+		t.Errorf("FailedBuild = %v, want %v", e.FailedBuild, true)
 	}
 }
 
