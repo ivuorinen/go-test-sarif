@@ -53,7 +53,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 	inputFile := fs.Arg(0)
 	outputFile := fs.Arg(1)
 
-	if err := internal.ConvertToSARIF(inputFile, outputFile); err != nil {
+	opts := internal.DefaultConvertOptions()
+	if err := internal.ConvertToSARIF(inputFile, outputFile, opts); err != nil {
 		_, _ = fmt.Fprintf(stderr, "Error: %v\n", err)
 		return 1
 	}

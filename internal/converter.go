@@ -2,61 +2,79 @@
 package internal
 
 import (
-	"bufio"
-	"encoding/json"
 	"fmt"
 	"os"
 
-	"github.com/owenrumney/go-sarif/v2/sarif"
+	"github.com/ivuorinen/go-test-sarif-action/internal/sarif"
+	"github.com/ivuorinen/go-test-sarif-action/internal/testjson"
 )
 
-// TestEvent represents a single line of `go test -json` output.
-type TestEvent struct {
-	Action  string `json:"Action"`
-	Package string `json:"Package"`
-	Test    string `json:"Test,omitempty"`
-	Output  string `json:"Output,omitempty"`
+// ConvertOptions configures the conversion behavior.
+type ConvertOptions struct {
+	SARIFVersion sarif.Version
+	Pretty       bool
 }
 
-// ConvertToSARIF converts Go test JSON events to the SARIF format.
-func ConvertToSARIF(inputFile, outputFile string) error {
-	f, err := os.Open(inputFile)
+// DefaultConvertOptions returns options with sensible defaults.
+func DefaultConvertOptions() ConvertOptions {
+	return ConvertOptions{
+		SARIFVersion: sarif.DefaultVersion,
+		Pretty:       false,
+	}
+}
+
+// ConvertToSARIF converts Go test JSON events to SARIF format.
+func ConvertToSARIF(inputFile, outputFile string, opts ConvertOptions) error {
+	// Parse go test JSON
+	events, err := testjson.ParseFile(inputFile)
 	if err != nil {
 		return err
 	}
-	defer func() { _ = f.Close() }()
 
-	report, err := sarif.New(sarif.Version210)
+	// Build internal SARIF model
+	report := buildReport(events)
+
+	// Serialize to requested version
+	data, err := sarif.Serialize(report, opts.SARIFVersion, opts.Pretty)
 	if err != nil {
 		return err
 	}
 
-	run := sarif.NewRunWithInformationURI("go-test-sarif", "https://golang.org/cmd/go/#hdr-Test_packages")
-	rule := run.AddRule("go-test-failure").WithDescription("go test failure")
-
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		var event TestEvent
-		if err := json.Unmarshal(scanner.Bytes(), &event); err != nil {
-			return fmt.Errorf("invalid JSON: %w", err)
-		}
-		if event.Action == "fail" && (event.Test != "" || event.Package != "") {
-			result := sarif.NewRuleResult(rule.ID).
-				WithLevel("error").
-				WithMessage(sarif.NewTextMessage(event.Output))
-			run.AddResult(result)
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		return err
-	}
-
-	report.AddRun(run)
-	if err := report.WriteFile(outputFile); err != nil {
+	// Write output
+	if err := os.WriteFile(outputFile, data, 0o644); err != nil {
 		return err
 	}
 
 	fmt.Printf("SARIF report generated: %s\n", outputFile)
 	return nil
+}
+
+func buildReport(events []testjson.TestEvent) *sarif.Report {
+	report := &sarif.Report{
+		ToolName:    "go-test-sarif",
+		ToolInfoURI: "https://golang.org/cmd/go/#hdr-Test_packages",
+		Rules: []sarif.Rule{{
+			ID:          "go-test-failure",
+			Description: "go test failure",
+		}},
+	}
+
+	for _, e := range events {
+		if e.Action == "fail" && (e.Test != "" || e.Package != "") {
+			result := sarif.Result{
+				RuleID:  "go-test-failure",
+				Level:   "error",
+				Message: e.Output,
+			}
+			if e.Package != "" || e.Test != "" {
+				result.Location = &sarif.LogicalLocation{
+					Module:   e.Package,
+					Function: e.Test,
+				}
+			}
+			report.Results = append(report.Results, result)
+		}
+	}
+
+	return report
 }

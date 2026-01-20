@@ -4,9 +4,10 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/ivuorinen/go-test-sarif-action/internal/sarif"
 )
 
-// TestConvertToSARIF_Success tests the successful conversion of a valid Go test JSON output to SARIF format.
 func TestConvertToSARIF_Success(t *testing.T) {
 	dir := t.TempDir()
 
@@ -18,7 +19,8 @@ func TestConvertToSARIF_Success(t *testing.T) {
 
 	outputPath := filepath.Join(dir, "output.sarif")
 
-	if err := ConvertToSARIF(inputPath, outputPath); err != nil {
+	opts := DefaultConvertOptions()
+	if err := ConvertToSARIF(inputPath, outputPath, opts); err != nil {
 		t.Errorf("ConvertToSARIF returned an error: %v", err)
 	}
 
@@ -32,37 +34,36 @@ func TestConvertToSARIF_Success(t *testing.T) {
 	}
 }
 
-// TestConvertToSARIF_InvalidInput tests the function's behavior when provided with invalid JSON input.
 func TestConvertToSARIF_InvalidInput(t *testing.T) {
 	dir := t.TempDir()
 
 	inputPath := filepath.Join(dir, "invalid.json")
-	inputContent := `{"Action":"fail","Package":"github.com/ivuorinen/go-test-sarif/internal","Test":"TestExample","Output":` +
-		`Test failed}` + "\n" // Missing quotes around 'Test failed'
+	inputContent := `{"Action":"fail","Package":"example.com","Output":` +
+		`Test failed}` + "\n"
 	if err := os.WriteFile(inputPath, []byte(inputContent), 0o600); err != nil {
 		t.Fatalf("Failed to write input file: %v", err)
 	}
 
 	outputPath := filepath.Join(dir, "output.sarif")
 
-	if err := ConvertToSARIF(inputPath, outputPath); err == nil {
+	opts := DefaultConvertOptions()
+	if err := ConvertToSARIF(inputPath, outputPath, opts); err == nil {
 		t.Errorf("Expected an error for invalid JSON input, but got none")
 	}
 }
 
-// TestConvertToSARIF_FileNotFound tests the function's behavior when the input file does not exist.
 func TestConvertToSARIF_FileNotFound(t *testing.T) {
 	inputFile := "non_existent_file.json"
 
 	dir := t.TempDir()
 	outputPath := filepath.Join(dir, "output.sarif")
 
-	if err := ConvertToSARIF(inputFile, outputPath); err == nil {
+	opts := DefaultConvertOptions()
+	if err := ConvertToSARIF(inputFile, outputPath, opts); err == nil {
 		t.Errorf("Expected an error for non-existent input file, but got none")
 	}
 }
 
-// TestConvertToSARIF_PackageFailure ensures package-level failures are included in the SARIF output.
 func TestConvertToSARIF_PackageFailure(t *testing.T) {
 	dir := t.TempDir()
 
@@ -74,7 +75,8 @@ func TestConvertToSARIF_PackageFailure(t *testing.T) {
 
 	outputPath := filepath.Join(dir, "output.sarif")
 
-	if err := ConvertToSARIF(inputPath, outputPath); err != nil {
+	opts := DefaultConvertOptions()
+	if err := ConvertToSARIF(inputPath, outputPath, opts); err != nil {
 		t.Errorf("ConvertToSARIF returned an error: %v", err)
 	}
 
@@ -84,5 +86,62 @@ func TestConvertToSARIF_PackageFailure(t *testing.T) {
 	}
 	if len(data) == 0 {
 		t.Errorf("SARIF output is empty")
+	}
+}
+
+func TestConvertToSARIF_Options(t *testing.T) {
+	dir := t.TempDir()
+
+	inputPath := filepath.Join(dir, "input.json")
+	inputContent := `{"Action":"fail","Package":"example.com/foo","Test":"TestBar","Output":"failed"}` + "\n"
+	if err := os.WriteFile(inputPath, []byte(inputContent), 0o600); err != nil {
+		t.Fatalf("Failed to write input file: %v", err)
+	}
+
+	tests := []struct {
+		name    string
+		opts    ConvertOptions
+		wantErr bool
+	}{
+		{
+			name:    "default options",
+			opts:    DefaultConvertOptions(),
+			wantErr: false,
+		},
+		{
+			name: "v2.1.0 pretty",
+			opts: ConvertOptions{
+				SARIFVersion: sarif.Version210,
+				Pretty:       true,
+			},
+			wantErr: false,
+		},
+		{
+			name: "v2.2",
+			opts: ConvertOptions{
+				SARIFVersion: sarif.Version22,
+				Pretty:       false,
+			},
+			wantErr: false,
+		},
+		{
+			name: "invalid version",
+			opts: ConvertOptions{
+				SARIFVersion: "9.9.9",
+				Pretty:       false,
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			outputPath := filepath.Join(dir, tt.name+".sarif")
+			err := ConvertToSARIF(inputPath, outputPath, tt.opts)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ConvertToSARIF() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
 	}
 }
