@@ -28,7 +28,7 @@ internal/
 ├── sarif/
 │   ├── model.go       # Internal SARIF data model
 │   ├── version.go     # Version enum and registry
-│   ├── writer.go      # Common writing logic
+│   ├── serialize.go   # Common serialization logic
 │   ├── v21.go         # SARIF 2.1.0 serializer
 │   └── v22.go         # SARIF 2.2 serializer
 ├── testjson/
