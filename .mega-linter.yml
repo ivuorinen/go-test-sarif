@@ -18,4 +18,3 @@ SHOW_SKIPPED_LINTERS: false # Show skipped linters in MegaLinter log
 DISABLE_LINTERS:
   - REPOSITORY_DEVSKIM
   - GO_GOLANGCI_LINT # old go version, fails always
-
