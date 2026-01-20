@@ -9,9 +9,15 @@ import (
 	"time"
 )
 
+const (
+	testInputFile   = "input.json"
+	testPackageName = "example.com/foo"
+	testTestName    = "TestBar"
+)
+
 func TestParseFile_ValidInput(t *testing.T) {
 	dir := t.TempDir()
-	inputPath := filepath.Join(dir, "input.json")
+	inputPath := filepath.Join(dir, testInputFile)
 
 	content := `{"Time":"2024-01-15T10:30:00Z","Action":"run","Package":"example.com/foo","Test":"TestBar"}
 {"Time":"2024-01-15T10:30:01Z","Action":"output","Package":"example.com/foo","Test":"TestBar","Output":"=== RUN   TestBar\n"}
@@ -34,11 +40,11 @@ func TestParseFile_ValidInput(t *testing.T) {
 	if events[0].Action != "run" {
 		t.Errorf("event[0].Action = %q, want %q", events[0].Action, "run")
 	}
-	if events[0].Package != "example.com/foo" {
-		t.Errorf("event[0].Package = %q, want %q", events[0].Package, "example.com/foo")
+	if events[0].Package != testPackageName {
+		t.Errorf("event[0].Package = %q, want %q", events[0].Package, testPackageName)
 	}
-	if events[0].Test != "TestBar" {
-		t.Errorf("event[0].Test = %q, want %q", events[0].Test, "TestBar")
+	if events[0].Test != testTestName {
+		t.Errorf("event[0].Test = %q, want %q", events[0].Test, testTestName)
 	}
 
 	// Check elapsed on pass event
@@ -49,7 +55,7 @@ func TestParseFile_ValidInput(t *testing.T) {
 
 func TestParseFile_AllFields(t *testing.T) {
 	dir := t.TempDir()
-	inputPath := filepath.Join(dir, "input.json")
+	inputPath := filepath.Join(dir, testInputFile)
 
 	// Event with all fields populated
 	content := `{"Time":"2024-01-15T10:30:00Z","Action":"fail","Package":"example.com/foo","Test":"TestBar","Elapsed":1.234,"Output":"FAIL\n","FailedBuild":"example.com/broken"}
@@ -76,11 +82,11 @@ func TestParseFile_AllFields(t *testing.T) {
 	if e.Action != "fail" {
 		t.Errorf("Action = %q, want %q", e.Action, "fail")
 	}
-	if e.Package != "example.com/foo" {
-		t.Errorf("Package = %q, want %q", e.Package, "example.com/foo")
+	if e.Package != testPackageName {
+		t.Errorf("Package = %q, want %q", e.Package, testPackageName)
 	}
-	if e.Test != "TestBar" {
-		t.Errorf("Test = %q, want %q", e.Test, "TestBar")
+	if e.Test != testTestName {
+		t.Errorf("Test = %q, want %q", e.Test, testTestName)
 	}
 	if e.Elapsed != 1.234 {
 		t.Errorf("Elapsed = %v, want %v", e.Elapsed, 1.234)
@@ -95,7 +101,7 @@ func TestParseFile_AllFields(t *testing.T) {
 
 func TestParseFile_MalformedJSON(t *testing.T) {
 	dir := t.TempDir()
-	inputPath := filepath.Join(dir, "input.json")
+	inputPath := filepath.Join(dir, testInputFile)
 
 	content := `{"Action":"pass","Package":"example.com/foo"}
 {"Action":"fail","Package":broken json here}

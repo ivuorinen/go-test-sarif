@@ -31,6 +31,9 @@ func ParseFile(path string) ([]TestEvent, error) {
 
 	var events []TestEvent
 	scanner := bufio.NewScanner(f)
+	// Increase buffer size for large JSON lines (e.g., verbose test output)
+	// Default is 64KB; allow up to 4MB per line
+	scanner.Buffer(make([]byte, 64*1024), 4*1024*1024)
 	lineNum := 0
 
 	for scanner.Scan() {

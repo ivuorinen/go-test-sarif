@@ -8,7 +8,7 @@ import (
 
 func TestSerializeV22_Schema(t *testing.T) {
 	report := &Report{
-		ToolName:    "test-tool",
+		ToolName:    testToolName,
 		ToolInfoURI: "https://example.com",
 	}
 
@@ -34,15 +34,15 @@ func TestSerializeV22_WithResults(t *testing.T) {
 	report := &Report{
 		ToolName: "go-test-sarif",
 		Rules: []Rule{
-			{ID: "test-failure", Description: "Test failure"},
+			{ID: testRuleID, Description: "Test failure"},
 		},
 		Results: []Result{
 			{
-				RuleID:  "test-failure",
-				Level:   "error",
+				RuleID:  testRuleID,
+				Level:   testLevelError,
 				Message: "TestFoo failed",
 				Location: &LogicalLocation{
-					Module:   "example.com/foo",
+					Module:   testModuleName,
 					Function: "TestFoo",
 				},
 			},
@@ -68,7 +68,7 @@ func TestSerializeV22_WithResults(t *testing.T) {
 	}
 
 	res := results[0].(map[string]any)
-	if res["ruleId"] != "test-failure" {
-		t.Errorf("ruleId = %v, want %v", res["ruleId"], "test-failure")
+	if res["ruleId"] != testRuleID {
+		t.Errorf("ruleId = %v, want %v", res["ruleId"], testRuleID)
 	}
 }

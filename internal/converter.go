@@ -66,11 +66,9 @@ func buildReport(events []testjson.TestEvent) *sarif.Report {
 				Level:   "error",
 				Message: e.Output,
 			}
-			if e.Package != "" || e.Test != "" {
-				result.Location = &sarif.LogicalLocation{
-					Module:   e.Package,
-					Function: e.Test,
-				}
+			result.Location = &sarif.LogicalLocation{
+				Module:   e.Package,
+				Function: e.Test,
 			}
 			report.Results = append(report.Results, result)
 		}

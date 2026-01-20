@@ -8,6 +8,8 @@ import (
 	"testing"
 )
 
+const testVersionOutput = "go-test-sarif dev"
+
 func TestRun(t *testing.T) {
 	tests := []struct {
 		name       string
@@ -21,13 +23,13 @@ func TestRun(t *testing.T) {
 			name:       "version flag long",
 			args:       []string{"go-test-sarif", "--version"},
 			wantExit:   0,
-			wantStdout: "go-test-sarif dev",
+			wantStdout: testVersionOutput,
 		},
 		{
 			name:       "version flag short",
 			args:       []string{"go-test-sarif", "-v"},
 			wantExit:   0,
-			wantStdout: "go-test-sarif dev",
+			wantStdout: testVersionOutput,
 		},
 		{
 			name:       "missing arguments",
@@ -125,8 +127,8 @@ func TestPrintVersion(t *testing.T) {
 	printVersion(buf)
 
 	output := buf.String()
-	if !strings.Contains(output, "go-test-sarif dev") {
-		t.Errorf("printVersion() = %q, want to contain %q", output, "go-test-sarif dev")
+	if !strings.Contains(output, testVersionOutput) {
+		t.Errorf("printVersion() = %q, want to contain %q", output, testVersionOutput)
 	}
 	if !strings.Contains(output, "commit: none") {
 		t.Errorf("printVersion() = %q, want to contain %q", output, "commit: none")

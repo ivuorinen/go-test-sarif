@@ -6,9 +6,14 @@ import (
 	"testing"
 )
 
+const (
+	testRuleID     = "test-failure"
+	testLevelError = "error"
+)
+
 func TestSerializeV21_Schema(t *testing.T) {
 	report := &Report{
-		ToolName:    "test-tool",
+		ToolName:    testToolName,
 		ToolInfoURI: "https://example.com",
 	}
 
@@ -35,12 +40,12 @@ func TestSerializeV21_WithResults(t *testing.T) {
 		ToolName:    "go-test-sarif",
 		ToolInfoURI: "https://golang.org/cmd/go/",
 		Rules: []Rule{
-			{ID: "test-failure", Description: "Test failure"},
+			{ID: testRuleID, Description: "Test failure"},
 		},
 		Results: []Result{
 			{
-				RuleID:  "test-failure",
-				Level:   "error",
+				RuleID:  testRuleID,
+				Level:   testLevelError,
 				Message: "TestFoo failed",
 			},
 		},
@@ -68,11 +73,11 @@ func TestSerializeV21_WithResults(t *testing.T) {
 	}
 
 	res := results[0].(map[string]interface{})
-	if res["ruleId"] != "test-failure" {
-		t.Errorf("ruleId = %v, want %v", res["ruleId"], "test-failure")
+	if res["ruleId"] != testRuleID {
+		t.Errorf("ruleId = %v, want %v", res["ruleId"], testRuleID)
 	}
-	if res["level"] != "error" {
-		t.Errorf("level = %v, want %v", res["level"], "error")
+	if res["level"] != testLevelError {
+		t.Errorf("level = %v, want %v", res["level"], testLevelError)
 	}
 }
 
@@ -80,15 +85,15 @@ func TestSerializeV21_LogicalLocation(t *testing.T) {
 	report := &Report{
 		ToolName: "go-test-sarif",
 		Rules: []Rule{
-			{ID: "test-failure", Description: "Test failure"},
+			{ID: testRuleID, Description: "Test failure"},
 		},
 		Results: []Result{
 			{
-				RuleID:  "test-failure",
-				Level:   "error",
+				RuleID:  testRuleID,
+				Level:   testLevelError,
 				Message: "TestBar failed",
 				Location: &LogicalLocation{
-					Module:   "example.com/foo",
+					Module:   testModuleName,
 					Function: "TestBar",
 				},
 			},
