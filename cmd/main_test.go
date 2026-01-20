@@ -59,6 +59,25 @@ func TestRun(t *testing.T) {
 			wantExit:   1,
 			wantStderr: "flag provided but not defined",
 		},
+		{
+			name:      "with sarif-version flag",
+			args:      []string{"go-test-sarif", "--sarif-version", "2.2", "input.json", "output.sarif"},
+			setupFunc: setupValidTestFiles,
+			wantExit:  0,
+		},
+		{
+			name:      "with pretty flag",
+			args:      []string{"go-test-sarif", "--pretty", "input.json", "output.sarif"},
+			setupFunc: setupValidTestFiles,
+			wantExit:  0,
+		},
+		{
+			name:       "invalid sarif version",
+			args:       []string{"go-test-sarif", "--sarif-version", "9.9.9", "input.json", "output.sarif"},
+			setupFunc:  setupValidTestFiles,
+			wantExit:   1,
+			wantStderr: "Error:",
+		},
 	}
 
 	for _, tt := range tests {
@@ -119,8 +138,14 @@ func TestPrintUsage(t *testing.T) {
 	printUsage(buf)
 
 	output := buf.String()
-	if !strings.Contains(output, "Usage: go-test-sarif <input.json> <output.sarif>") {
+	if !strings.Contains(output, "Usage: go-test-sarif") {
 		t.Errorf("printUsage() = %q, want to contain usage information", output)
+	}
+	if !strings.Contains(output, "--sarif-version") {
+		t.Errorf("printUsage() = %q, want to contain --sarif-version flag", output)
+	}
+	if !strings.Contains(output, "--pretty") {
+		t.Errorf("printUsage() = %q, want to contain --pretty flag", output)
 	}
 }
 
