@@ -2,6 +2,7 @@
 package sarif
 
 import (
+	"bytes"
 	"strings"
 	"testing"
 )
@@ -49,5 +50,34 @@ func TestSerialize_UnknownVersion(t *testing.T) {
 func TestDefaultVersion(t *testing.T) {
 	if DefaultVersion != Version210 {
 		t.Errorf("DefaultVersion = %q, want %q", DefaultVersion, Version210)
+	}
+}
+
+func TestSerialize_PrettyOutput(t *testing.T) {
+	report := &Report{
+		ToolName: "test-tool",
+	}
+
+	compact, err := Serialize(report, Version210, false)
+	if err != nil {
+		t.Fatalf("Serialize compact returned error: %v", err)
+	}
+
+	pretty, err := Serialize(report, Version210, true)
+	if err != nil {
+		t.Fatalf("Serialize pretty returned error: %v", err)
+	}
+
+	// Pretty should be longer due to whitespace
+	if len(pretty) <= len(compact) {
+		t.Errorf("pretty output (%d bytes) should be longer than compact (%d bytes)", len(pretty), len(compact))
+	}
+
+	// Pretty should contain newlines and indentation
+	if !bytes.Contains(pretty, []byte("\n")) {
+		t.Error("pretty output should contain newlines")
+	}
+	if !bytes.Contains(pretty, []byte("  ")) {
+		t.Error("pretty output should contain indentation")
 	}
 }
