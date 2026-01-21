@@ -1,0 +1,79 @@
+---
+repos:
+  # Built-in pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: detect-private-key
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+        exclude: "^testdata/"
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+      - id: check-symlinks
+      - id: check-toml
+      - id: check-xml
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+        exclude: "^testdata/"
+      - id: end-of-file-fixer
+        exclude: "^testdata/"
+      - id: mixed-line-ending
+        args: [--fix=auto]
+      - id: pretty-format-json
+        args: [--autofix, --no-sort-keys]
+
+  # YAML formatting with yamlfmt (replaces yamllint for formatting)
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.21.0
+    hooks:
+      - id: yamlfmt
+        exclude: "^testdata/"
+
+  # Markdown linting with markdownlint-cli2 (excluding legacy files)
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.20.0
+    hooks:
+      - id: markdownlint-cli2
+        args: [--fix]
+        exclude: "^testdata/"
+
+  # EditorConfig checking
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker
+    rev: v3.6.0
+    hooks:
+      - id: editorconfig-checker
+        alias: ec
+
+  # Go formatting, imports, and linting
+  - repo: https://github.com/TekWizely/pre-commit-golang
+    rev: v1.0.0-rc.4
+    hooks:
+      - id: go-imports-repo
+        args: [-w]
+      - id: go-mod-tidy
+      - id: golangci-lint-repo-mod
+        args: [--fix]
+
+  # Shell formatting and linting
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.12.0-2
+    hooks:
+      - id: shfmt
+
+  # GitHub Actions linting
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.10
+    hooks:
+      - id: actionlint
+        args: ["-shellcheck="]
+
+  # Commit message linting
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v9.24.0
+    hooks:
+      - id: commitlint
+        stages: [commit-msg]
+        additional_dependencies: ["@commitlint/config-conventional"]

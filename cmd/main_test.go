@@ -6,97 +6,132 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/ivuorinen/go-test-sarif-action/internal/testutil"
 )
 
+type runTestCase struct {
+	name       string
+	args       []string
+	setupFunc  func() (string, string, func())
+	wantExit   int
+	wantStdout string
+	wantStderr string
+}
+
+// runTestCaseHelper executes a single test case and validates results.
+func runTestCaseHelper(t *testing.T, tc runTestCase) {
+	t.Helper()
+
+	args := make([]string, len(tc.args))
+	copy(args, tc.args)
+
+	var cleanup func()
+	if tc.setupFunc != nil {
+		inputFile, outputFile, cleanupFunc := tc.setupFunc()
+		cleanup = cleanupFunc
+		args = replaceFilePlaceholders(args, inputFile, outputFile)
+	}
+	if cleanup != nil {
+		defer cleanup()
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	exitCode := run(args, stdout, stderr)
+
+	if exitCode != tc.wantExit {
+		t.Errorf("exit code = %v, want %v", exitCode, tc.wantExit)
+	}
+	if tc.wantStdout != "" && !strings.Contains(stdout.String(), tc.wantStdout) {
+		t.Errorf("stdout = %q, want to contain %q", stdout.String(), tc.wantStdout)
+	}
+	if tc.wantStderr != "" && !strings.Contains(stderr.String(), tc.wantStderr) {
+		t.Errorf("stderr = %q, want to contain %q", stderr.String(), tc.wantStderr)
+	}
+}
+
+// replaceFilePlaceholders replaces placeholder file names with actual paths.
+func replaceFilePlaceholders(args []string, inputFile, outputFile string) []string {
+	for i, arg := range args {
+		switch arg {
+		case testutil.InputJSON:
+			args[i] = inputFile
+		case testutil.OutputSARIF:
+			args[i] = outputFile
+		}
+	}
+	return args
+}
+
 func TestRun(t *testing.T) {
-	tests := []struct {
-		name       string
-		args       []string
-		setupFunc  func() (string, string, func())
-		wantExit   int
-		wantStdout string
-		wantStderr string
-	}{
+	tests := []runTestCase{
 		{
 			name:       "version flag long",
-			args:       []string{"go-test-sarif", "--version"},
+			args:       []string{testutil.AppName, "--version"},
 			wantExit:   0,
-			wantStdout: "go-test-sarif dev",
+			wantStdout: testutil.VersionOutput,
 		},
 		{
 			name:       "version flag short",
-			args:       []string{"go-test-sarif", "-v"},
+			args:       []string{testutil.AppName, "-v"},
 			wantExit:   0,
-			wantStdout: "go-test-sarif dev",
+			wantStdout: testutil.VersionOutput,
 		},
 		{
 			name:       "missing arguments",
-			args:       []string{"go-test-sarif"},
+			args:       []string{testutil.AppName},
 			wantExit:   1,
-			wantStderr: "Usage: go-test-sarif",
+			wantStderr: "Usage: " + testutil.AppName,
 		},
 		{
 			name:       "only one argument",
-			args:       []string{"go-test-sarif", "input.json"},
+			args:       []string{testutil.AppName, testutil.InputJSON},
 			wantExit:   1,
-			wantStderr: "Usage: go-test-sarif",
+			wantStderr: "Usage: " + testutil.AppName,
 		},
 		{
-			name:     "valid conversion",
-			args:     []string{"go-test-sarif", "input.json", "output.sarif"},
+			name:      "valid conversion",
+			args:      []string{testutil.AppName, testutil.InputJSON, testutil.OutputSARIF},
 			setupFunc: setupValidTestFiles,
-			wantExit: 0,
+			wantExit:  0,
 		},
 		{
 			name:       "invalid input file",
-			args:       []string{"go-test-sarif", "nonexistent.json", "output.sarif"},
+			args:       []string{testutil.AppName, "nonexistent.json", testutil.OutputSARIF},
 			wantExit:   1,
 			wantStderr: "Error:",
 		},
 		{
 			name:       "invalid flag",
-			args:       []string{"go-test-sarif", "--invalid"},
+			args:       []string{testutil.AppName, "--invalid"},
 			wantExit:   1,
 			wantStderr: "flag provided but not defined",
+		},
+		{
+			name:      "with sarif-version flag",
+			args:      []string{testutil.AppName, "--sarif-version", "2.2", testutil.InputJSON, testutil.OutputSARIF},
+			setupFunc: setupValidTestFiles,
+			wantExit:  0,
+		},
+		{
+			name:      "with pretty flag",
+			args:      []string{testutil.AppName, "--pretty", testutil.InputJSON, testutil.OutputSARIF},
+			setupFunc: setupValidTestFiles,
+			wantExit:  0,
+		},
+		{
+			name:       "invalid sarif version",
+			args:       []string{testutil.AppName, "--sarif-version", "9.9.9", testutil.InputJSON, testutil.OutputSARIF},
+			setupFunc:  setupValidTestFiles,
+			wantExit:   1,
+			wantStderr: "Error:",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var cleanup func()
-			if tt.setupFunc != nil {
-				inputFile, outputFile, cleanupFunc := tt.setupFunc()
-				cleanup = cleanupFunc
-				// Replace placeholders with actual file paths
-				for i, arg := range tt.args {
-					switch arg {
-					case "input.json":
-						tt.args[i] = inputFile
-					case "output.sarif":
-						tt.args[i] = outputFile
-					}
-				}
-			}
-			if cleanup != nil {
-				defer cleanup()
-			}
-
-			stdout := &bytes.Buffer{}
-			stderr := &bytes.Buffer{}
-
-			exitCode := run(tt.args, stdout, stderr)
-
-			if exitCode != tt.wantExit {
-				t.Errorf("run() exit code = %v, want %v", exitCode, tt.wantExit)
-			}
-
-			if tt.wantStdout != "" && !strings.Contains(stdout.String(), tt.wantStdout) {
-				t.Errorf("stdout = %q, want to contain %q", stdout.String(), tt.wantStdout)
-			}
-
-			if tt.wantStderr != "" && !strings.Contains(stderr.String(), tt.wantStderr) {
-				t.Errorf("stderr = %q, want to contain %q", stderr.String(), tt.wantStderr)
-			}
+			runTestCaseHelper(t, tt)
 		})
 	}
 }
@@ -106,8 +141,8 @@ func TestPrintVersion(t *testing.T) {
 	printVersion(buf)
 
 	output := buf.String()
-	if !strings.Contains(output, "go-test-sarif dev") {
-		t.Errorf("printVersion() = %q, want to contain %q", output, "go-test-sarif dev")
+	if !strings.Contains(output, testutil.VersionOutput) {
+		t.Errorf("printVersion() = %q, want to contain %q", output, testutil.VersionOutput)
 	}
 	if !strings.Contains(output, "commit: none") {
 		t.Errorf("printVersion() = %q, want to contain %q", output, "commit: none")
@@ -119,8 +154,14 @@ func TestPrintUsage(t *testing.T) {
 	printUsage(buf)
 
 	output := buf.String()
-	if !strings.Contains(output, "Usage: go-test-sarif <input.json> <output.sarif>") {
+	if !strings.Contains(output, "Usage: "+testutil.AppName) {
 		t.Errorf("printUsage() = %q, want to contain usage information", output)
+	}
+	if !strings.Contains(output, "--sarif-version") {
+		t.Errorf("printUsage() = %q, want to contain --sarif-version flag", output)
+	}
+	if !strings.Contains(output, "--pretty") {
+		t.Errorf("printUsage() = %q, want to contain --pretty flag", output)
 	}
 }
 
